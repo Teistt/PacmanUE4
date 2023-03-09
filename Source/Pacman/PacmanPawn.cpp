@@ -9,7 +9,9 @@ APacmanPawn::APacmanPawn()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	frozen = true;
+	invincible = false;
+	maxInvincibleTime = 5.0f;
 }
 
 // Called when the game starts or when spawned
@@ -28,7 +30,6 @@ void APacmanPawn::Tick(float DeltaTime)
 	if (!frozen) {
 		AddMovementInput(GetActorForwardVector());
 	}
-
 }
 
 // Called to bind functionality to input
@@ -54,10 +55,35 @@ void APacmanPawn::SetDirection(const FVector Direction)
 	}
 }
 
+void APacmanPawn::ResetInvincible()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("I am no longer invincible"));
+	invincible = false;
+}
+
 void APacmanPawn::OnOverlapBegin(AActor* PlayerActor, AActor* OtherActor)
 {
 	if (OtherActor->ActorHasTag("Fruit.Regular")) {
 		Cast <AFruit>(OtherActor)->Consume();
 	}
+	if (OtherActor->ActorHasTag("Fruit.Special")) {
+		Cast <AFruit>(OtherActor)->Consume();
+
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("I am invincible"));
+		invincible = true;
+		
+		//start invincible timer
+		GetWorld()->GetTimerManager().SetTimer(invincibleTimerHandle, this, &APacmanPawn::ResetInvincible, maxInvincibleTime, false);
+	}
+	if (OtherActor->ActorHasTag("Ghost")) {
+		if (invincible) {
+			//eat ghost
+		}
+		else {
+			//implement death
+		}
+	}
 }
+
+
 

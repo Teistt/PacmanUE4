@@ -30,10 +30,16 @@ public:
 protected:
 
 	UPROPERTY(BlueprintReadOnly)
-		bool frozen = true;
+		bool frozen;
+		bool invincible;
+
+		float maxInvincibleTime;
+		
+		FTimerHandle invincibleTimerHandle;
 
 public:
 	void SetDirection(const FVector Direction);
+	void ResetInvincible();
 	bool IsFrozen() { return frozen; }
 
 	UFUNCTION(BlueprintCallable)
